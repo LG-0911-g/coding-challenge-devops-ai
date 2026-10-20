@@ -41,3 +41,21 @@ jobs:
           name: test-results
           path: TestResults/*.trx
           if-no-files-found: ignore
+      
+      - name: Install CycloneDX
+        run: dotnet tool install --global CycloneDX --version 6.3.1
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p sbom
+          dotnet-CycloneDX CodingChallenge.slnx \
+            --output sbom \
+            --output-format json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: software-bill-of-materials
+          path: sbom/*.json
+          if-no-files-found: error
+
