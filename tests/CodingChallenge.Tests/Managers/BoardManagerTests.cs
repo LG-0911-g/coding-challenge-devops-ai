@@ -94,4 +94,49 @@ public class BoardManagerTests
         Assert.That(result, Is.True);
         Assert.That(await _context.Boards.CountAsync(), Is.EqualTo(0));
     }
+
+    [Test]
+    public async Task DeleteAsync_RejectsDeletion_WhenBoardHasActiveOrder()
+    {
+        // Arrange: Create a board
+        var board = new Board
+        {
+            Name = "Board 1",
+            Length = 100,
+            Width = 50
+        };
+
+        // Create an active order
+        var order = new Order
+        {
+            Name = "Order 1",
+            OrderDate = DateTime.UtcNow,
+            Status = OrderStatus.Active
+        };
+
+        // Save both entities
+        _context.Boards.Add(board);
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+
+        // Link the board to the active order
+        _context.OrderBoards.Add(new OrderBoard
+        {
+            BoardId = board.Id,
+            OrderId = order.Id
+        });
+        await _context.SaveChangesAsync();
+
+        // Act: Attempt to delete the board
+        var result = await _sut.DeleteAsync(board.Id);
+
+        // Assert: Deletion must be rejected
+        Assert.That(result, Is.False);
+
+        // Assert: Board must still exist in the database
+        Assert.That(
+            await _context.Boards.AnyAsync(b => b.Id == board.Id),
+            Is.True
+        );
+    }
 }

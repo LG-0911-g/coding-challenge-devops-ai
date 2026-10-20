@@ -75,18 +75,35 @@ public class BoardManager : IBoardManager
         return existing;
     }
 
+    
     public async Task<bool> DeleteAsync(int id)
     {
-        var existing = await _context.Boards.FirstOrDefaultAsync(b => b.Id == id);
+        // Check if the board exists
+        var existing = await _context.Boards
+            .FirstOrDefaultAsync(b => b.Id == id);
+
         if (existing is null)
         {
             return false;
         }
 
+        // Prevent deletion if the board belongs to an active order
+        var hasActiveOrders = await _context.OrderBoards
+            .AnyAsync(ob => ob.BoardId == id &&
+                            ob.Order.Status == OrderStatus.Active);
+
+        if (hasActiveOrders)
+        {
+            return false;
+        }
+
+        // Delete the board if no active orders are linked
         _context.Boards.Remove(existing);
         await _context.SaveChangesAsync();
+
         return true;
     }
+
 
     public async Task SetComponentsAsync(int boardId, IEnumerable<int> componentIds)
     {
