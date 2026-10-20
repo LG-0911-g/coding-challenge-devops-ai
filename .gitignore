@@ -1,0 +1,14 @@
+# .NET build outputs
+bin/
+obj/
+
+# IDE files
+.vs/
+.vscode/
+
+# Test results
+TestResults/
+
+# Local settings
+*.user
+.env
