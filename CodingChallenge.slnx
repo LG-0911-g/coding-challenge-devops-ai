@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/perf/">
+    <Project Path="perf/PerfBaseline/PerfBaseline.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/CodingChallenge.Api/CodingChallenge.Api.csproj" />
     <Project Path="src/CodingChallenge.Web/CodingChallenge.Web.csproj" />
